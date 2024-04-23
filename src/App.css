@@ -84,12 +84,18 @@
 .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter {
   stroke: #02cfff !important;
 }
+.ql-toolbar.ql-snow .ql-formats {
+  margin-right: 0 !important;
+}
+.ql-snow.ql-toolbar .ql-customText:hover svg {
+  fill: #02cfff !important;
+}
 
 .ql-editor.ql-blank::before {
-  left: 20px !important;
+  left: 0 !important;
   color: #5a5a5a !important;
 }
 
 .ql-editor {
-  padding: 4px 20px !important;
+  padding: 0 !important;
 }
