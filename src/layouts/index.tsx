@@ -7,7 +7,7 @@ import { isMobile } from 'react-device-detect'
 import useScreen from 'src/hooks/useScreen'
 
 function AdminLayout() {
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(false)
   const moreThanSm = useScreen('sm')
 
   const showMenuTitle = useMemo(() => {
