@@ -24,9 +24,9 @@ function AdminSidebar({ className, showMenuTitle, onOpen }: Props) {
         }
       >
         <div className='grid gap-[19px]'>
-          <div className='flex justify-end'>
+          <div className='sm:hidden flex justify-end w-full'>
             <LeftArrow
-              className={clsx('sm:hidden mt-[-30px] cursor-pointer text-center w-[23px]', {
+              className={clsx('mt-[-30px] cursor-pointer text-center w-[23px]', {
                 'transform -scale-x-100': !showMenuTitle,
               })}
               onClick={handleToggle}

@@ -215,3 +215,15 @@ input[type='number'] {
   appearance: textfield;
   -moz-appearance: textfield; /* Firefox - override default appearance */
 }
+
+.ql-snow .ql-picker-options {
+  background-color: #111112 !important;
+}
+
+.ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-options {
+  border-color: #5a5a5a !important;
+}
+
+.ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-label {
+  border-color: #5a5a5a !important;
+}

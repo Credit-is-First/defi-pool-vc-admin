@@ -23,7 +23,7 @@ const BaseRoundedInput: React.FC<BaseInputProps> = ({
       className={`rounded-[10px] flex items-center  ${className}`}
     >
       <input
-        className={`border-0 outline-0 bg-transparent placeholder-gray-500 px-2 py-1 w-full ${inputClass}`}
+        className={`border-0 focus:border-0 outline-0 focus:outline-0 ring-0 focus:ring-0 bg-transparent placeholder-gray-500 px-2 py-1 w-full ${inputClass}`}
         style={{
           ...style,
           height,
