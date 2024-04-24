@@ -55,7 +55,7 @@
   border-radius: inherit;
   position: var(--position);
   inset: 0;
-  z-index: 1;
+  z-index: 0;
 }
 
 .gradient-bottom-border {
@@ -214,16 +214,4 @@ input[type='number']::-webkit-outer-spin-button {
 input[type='number'] {
   appearance: textfield;
   -moz-appearance: textfield; /* Firefox - override default appearance */
-}
-
-.ql-snow .ql-picker-options {
-  background-color: #111112 !important;
-}
-
-.ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-options {
-  border-color: #5a5a5a !important;
-}
-
-.ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-label {
-  border-color: #5a5a5a !important;
 }

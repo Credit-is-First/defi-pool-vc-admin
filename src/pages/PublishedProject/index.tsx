@@ -2,7 +2,6 @@ import React from 'react'
 import ScrollView from 'src/components/ScrollView'
 import BaseSearchInput from 'src/components/inputs/BaseSearchInput'
 import FiveirePercentItem from '../Statistics/FiveirePercentItem'
-import { ReactComponent as Close } from 'src/assets/icons/close.svg'
 import { fireItems } from '../Statistics/dummyData'
 
 function PublishedProject() {
@@ -13,14 +12,16 @@ function PublishedProject() {
         <ScrollView
           className='block flex-auto h-full'
           style={{ height: 'calc(100% - 56px)' }}
-          contentClass='pl-1 pr-0 md:pr-[44px] overflow-y-auto'
+          contentClass='px-1 md:pr-[44px] overflow-y-auto'
         >
           <div className='grid gap-[18px] py-1'>
             {fireItems.map((precent, index) => (
-              <div key={index} className='flex items-center'>
-                <FiveirePercentItem className='flex-auto w-full mr-[18px]' percent={precent} />
-                <Close />
-              </div>
+              <FiveirePercentItem
+                key={index}
+                closable
+                className='flex-auto w-full sm:mr-[18px]'
+                percent={precent}
+              />
             ))}
           </div>
         </ScrollView>

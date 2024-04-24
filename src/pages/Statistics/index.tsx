@@ -46,7 +46,7 @@ function StatisticsPage() {
             <ScrollView
               className='block flex-auto'
               style={{ height: 'calc(100% - 56px)' }}
-              contentClass='pl-1 pr-0 md:pr-[30px] overflow-y-auto'
+              contentClass='px-1 md:pr-[30px] overflow-y-auto'
             >
               <div className='grid gap-[18px] py-1'>
                 {fireItems.map((precent, index) => (
