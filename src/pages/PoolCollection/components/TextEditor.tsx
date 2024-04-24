@@ -1,6 +1,6 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { ChangeEvent, useCallback, useMemo, useRef, useState } from 'react'
 import clsx from 'clsx'
-import ReactQuill from 'react-quill'
+import ReactQuill, { Quill } from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 
 import GradientWrraper from 'src/components/GradientWrapper'
@@ -17,9 +17,39 @@ const formats = ['align', 'image', 'link']
 const TextEditor = ({ className, placeholder }: Props) => {
   const [showToolbar, setShowToolbar] = useState(false)
   const [editorHtml, setEditorHtml] = useState('')
+  const quillRef = useRef<ReactQuill>(null)
+  const imgInputRef = useRef<HTMLInputElement>(null)
 
   const toogleToolbar = useCallback(() => setShowToolbar((prev) => !prev), [])
-  const handleLogoIcon = useCallback(() => {}, [])
+  const handleLogoIcon = useCallback(() => {
+    imgInputRef.current && imgInputRef.current.click()
+  }, [])
+  const insertImage = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation()
+    e.preventDefault()
+    if (
+      e.currentTarget &&
+      e.currentTarget.files &&
+      e.currentTarget.files.length > 0 &&
+      quillRef.current
+    ) {
+      const file = e.currentTarget.files[0]
+
+      const formData = new FormData()
+      formData.append('file', file)
+      const quill = quillRef.current.getEditor()
+      quill.focus()
+
+      const range = quill.getSelection()
+      const position = range ? range.index : 0
+      const Image = Quill.import('formats/image')
+      const url = window.URL.createObjectURL(file)
+      Image.sanitize = (url: string) => url
+
+      quill.insertEmbed(position, 'image', url)
+      quill.setSelection(position + 1, 1)
+    }
+  }, [])
 
   const modules = useMemo(() => {
     return {
@@ -41,8 +71,16 @@ const TextEditor = ({ className, placeholder }: Props) => {
     <GradientWrraper borderWidth={1} className={clsx('flex rounded-[10px]', className)}>
       <div className='w-full flex flex-row-reverse sm:flex-col'>
         <QuillToolbar show={showToolbar} />
+        <input
+          type='file'
+          accept='image/*'
+          ref={imgInputRef}
+          style={{ display: 'none' }}
+          onChange={insertImage}
+        />
         <div className='relative w-full flex-auto'>
           <ReactQuill
+            ref={quillRef}
             className='absolute inset-0 !p-0'
             value={editorHtml}
             onChange={handleChange}
@@ -63,12 +101,12 @@ type ToolbarProps = {
 } & BaseProps
 const options: Option[] = [
   {
-    value: 'option1',
-    icon: <TextIcon />,
+    value: '14px',
+    icon: <TextIcon width={10} />,
   },
   {
-    value: 'option2',
-    icon: <TextIcon width={10} />,
+    value: '24px',
+    icon: <TextIcon />,
   },
 ]
 function QuillToolbar({ show, className }: ToolbarProps) {
