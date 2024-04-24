@@ -7,7 +7,7 @@ import { isMobile } from 'react-device-detect'
 import useScreen from 'src/hooks/useScreen'
 
 function AdminLayout() {
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(false)
   const moreThanSm = useScreen('sm')
 
   const showMenuTitle = useMemo(() => {
@@ -27,10 +27,10 @@ function AdminLayout() {
       <AdminSidebar
         showMenuTitle={showMenuTitle}
         onOpen={setOpen}
-        className='fixed h-admin-content bottom-0 left-0 z-50'
+        className='fixed top-[80px] bottom-0 left-0 z-50'
       />
       <div className='flex min-h-[100vh] pt-[80px] pr-5 md:pr-10 lg:pr-20 xl:pr-[100px] overflow-hidden'>
-        <AdminSidebar showMenuTitle={moreThanSm} className='h-admin-content invisible' />
+        <AdminSidebar showMenuTitle={moreThanSm} className='top-[80px] invisible' />
         <div className='ml-5 md:ml-10 lg:ml-[60px] flex-auto w-1'>
           <Outlet />
           {isMobile && <AdminFooter />}
