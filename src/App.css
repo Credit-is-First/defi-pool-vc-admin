@@ -87,7 +87,7 @@
 .ql-toolbar.ql-snow .ql-formats {
   margin-right: 0 !important;
 }
-.ql-snow.ql-toolbar .custom-icon-picker span:hover svg {
+.ql-snow.ql-toolbar .ql-text:hover svg {
   fill: #02cfff !important;
 }
 
