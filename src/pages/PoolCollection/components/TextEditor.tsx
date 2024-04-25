@@ -24,7 +24,6 @@ const TextEditor = ({ className, placeholder }: Props) => {
   const handleLogoIcon = useCallback(() => {
     imgInputRef.current && imgInputRef.current.click()
   }, [])
-  const handleText = useCallback(() => {}, [])
   const insertImage = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation()
     e.preventDefault()
@@ -59,7 +58,6 @@ const TextEditor = ({ className, placeholder }: Props) => {
         handlers: {
           expand: toogleToolbar,
           logo: handleLogoIcon,
-          text: handleText,
         },
       },
     }
@@ -101,7 +99,16 @@ export default TextEditor
 type ToolbarProps = {
   show: boolean
 } & BaseProps
-
+const options: Option[] = [
+  {
+    value: '14px',
+    icon: <TextIcon width={10} />,
+  },
+  {
+    value: '24px',
+    icon: <TextIcon />,
+  },
+]
 function QuillToolbar({ show, className }: ToolbarProps) {
   return (
     <div
@@ -117,9 +124,7 @@ function QuillToolbar({ show, className }: ToolbarProps) {
         </button>
       </span>
       <span className={clsx({ '!hidden': !show }, 'ql-formats sm:!inline-block')}>
-        <button className='ql-text !flex justify-center'>
-          <TextIcon width={10} />
-        </button>
+        <IconPicker options={options} />
       </span>
       <span className={clsx({ '!hidden': !show }, 'ql-formats sm:!inline-block')}>
         <select className='ql-align' />
@@ -135,6 +140,48 @@ function QuillToolbar({ show, className }: ToolbarProps) {
           Lg
         </button>
       </span>
+    </div>
+  )
+}
+interface Option {
+  value: string
+  icon: JSX.Element
+}
+
+interface IconPickerProps {
+  options: Option[]
+}
+
+const IconPicker: React.FC<IconPickerProps> = ({ options }) => {
+  const [isOpen, setIsOpen] = useState(false)
+  const [selectedOption, setSelectedOption] = useState<Option>(options[0])
+
+  const handleOptionClick = (option: Option) => {
+    setSelectedOption(option)
+    setIsOpen(false)
+  }
+
+  return (
+    <div className={clsx('ql-picker ql-icon-picker custom-icon-picker', { 'ql-expanded': isOpen })}>
+      <span
+        className='ql-picker-label !flex justify-center items-center'
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        {selectedOption.icon}
+      </span>
+      <div className='ql-picker-options' aria-hidden={!isOpen}>
+        {options.map((option) => (
+          <span
+            key={option.value}
+            className={clsx('ql-picker-item !flex justify-center items-center', {
+              '!hidden': selectedOption === option,
+            })}
+            onClick={() => handleOptionClick(option)}
+          >
+            {option.icon}
+          </span>
+        ))}
+      </div>
     </div>
   )
 }

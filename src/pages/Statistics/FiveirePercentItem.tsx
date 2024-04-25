@@ -37,14 +37,14 @@ function FiveirePercentItem({ percent, className, closable, ...others }: Props) 
           {percent}%
           {closable && (
             <span onClick={(e) => e.stopPropagation()}>
-              <Close className='ml-[10px] sm:hidden' onClick={() => alert('ok')} />
+              <Close className='ml-[10px] sm:hidden' />
             </span>
           )}
         </div>
       </div>
       {closable && (
         <span onClick={(e) => e.stopPropagation()}>
-          <Close className='hidden sm:block ml-[18px]' onClick={() => alert('ok')} />
+          <Close className='hidden sm:block ml-[18px]' />
         </span>
       )}
     </div>
