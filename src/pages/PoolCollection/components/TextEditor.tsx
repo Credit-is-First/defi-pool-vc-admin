@@ -1,4 +1,12 @@
-import React, { ChangeEvent, useCallback, useMemo, useRef, useState } from 'react'
+import React, {
+  ChangeEvent,
+  RefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import clsx from 'clsx'
 import ReactQuill, { Quill } from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
@@ -7,16 +15,22 @@ import GradientWrraper from 'src/components/GradientWrapper'
 import { BaseProps } from 'src/types'
 import { ReactComponent as ExpandIcon } from 'src/assets/icons/toolbar-expand.svg'
 import { ReactComponent as TextIcon } from 'src/assets/icons/T-icon.svg'
+import { RangeStatic, StringMap } from 'quill'
 
 type Props = {
   placeholder?: string
 } & BaseProps
 
-const formats = ['align', 'image', 'link']
+const Size = Quill.import('formats/size')
+Size.whitelist = ['text', 'title']
+Quill.register(Size, true)
+
+const formats = ['align', 'image', 'link', 'size', 'color']
 
 const TextEditor = ({ className, placeholder }: Props) => {
   const [showToolbar, setShowToolbar] = useState(false)
   const [editorHtml, setEditorHtml] = useState('')
+
   const quillRef = useRef<ReactQuill>(null)
   const imgInputRef = useRef<HTMLInputElement>(null)
 
@@ -70,7 +84,7 @@ const TextEditor = ({ className, placeholder }: Props) => {
   return (
     <GradientWrraper borderWidth={1} className={clsx('flex rounded-[10px]', className)}>
       <div className='w-full flex flex-row-reverse sm:flex-col'>
-        <QuillToolbar show={showToolbar} />
+        <QuillToolbar show={showToolbar} editorRef={quillRef} />
         <input
           type='file'
           accept='image/*'
@@ -96,20 +110,65 @@ const TextEditor = ({ className, placeholder }: Props) => {
 
 export default TextEditor
 
-type ToolbarProps = {
-  show: boolean
-} & BaseProps
 const options: Option[] = [
   {
-    value: '14px',
+    value: 'text',
     icon: <TextIcon width={10} />,
   },
   {
-    value: '24px',
+    value: 'title',
     icon: <TextIcon />,
   },
 ]
-function QuillToolbar({ show, className }: ToolbarProps) {
+
+type ToolbarProps = {
+  show: boolean
+  editorRef: RefObject<ReactQuill | null>
+} & BaseProps
+
+function QuillToolbar({ show, editorRef, className }: ToolbarProps) {
+  const [currentFormat, setCurrentFormat] = useState<StringMap>({})
+  const [savedSelection, setSavedSelection] = useState<RangeStatic>()
+
+  const handleTextIconChange = useCallback((option: Option, selection: RangeStatic | null) => {
+    if (editorRef.current && selection) {
+      const instance = editorRef.current.getEditor()
+      const { index, length }: RangeStatic = selection
+      instance.focus()
+      if (length === 0) {
+        instance.format('size', option.value, 'user')
+      } else {
+        instance.formatText(index, length, 'size', option.value)
+      }
+      instance.setSelection(index, length)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (editorRef.current) {
+      const quillInstance = editorRef.current.getEditor()
+      const callback = () => {
+        const range = quillInstance.getSelection()
+        if (range) {
+          setSavedSelection((prev) => {
+            if (prev) {
+              range.index !== prev.index || range.length !== prev.length ? range : prev
+            }
+            return range
+          })
+          const formats = quillInstance.getFormat(range.index, range.length)
+          setCurrentFormat(formats)
+        }
+      }
+
+      quillInstance.on('editor-change', callback)
+
+      return () => {
+        quillInstance.off('editor-change', callback)
+      }
+    }
+  }, [editorRef.current])
+
   return (
     <div
       id='toolbar'
@@ -124,7 +183,12 @@ function QuillToolbar({ show, className }: ToolbarProps) {
         </button>
       </span>
       <span className={clsx({ '!hidden': !show }, 'ql-formats sm:!inline-block')}>
-        <IconPicker options={options} />
+        <IconPicker
+          options={options}
+          selection={savedSelection}
+          onOptionChange={handleTextIconChange}
+          formats={currentFormat}
+        />
       </span>
       <span className={clsx({ '!hidden': !show }, 'ql-formats sm:!inline-block')}>
         <select className='ql-align' />
@@ -148,24 +212,56 @@ interface Option {
   icon: JSX.Element
 }
 
-interface IconPickerProps {
+interface IconPickerProps extends BaseProps {
   options: Option[]
+  formats: StringMap
+  selection?: RangeStatic
+  onOptionChange: (option: Option, selection: RangeStatic | null) => void
 }
 
-const IconPicker: React.FC<IconPickerProps> = ({ options }) => {
+const IconPicker: React.FC<IconPickerProps> = ({
+  options,
+  onOptionChange,
+  formats,
+  selection,
+  className,
+}) => {
   const [isOpen, setIsOpen] = useState(false)
   const [selectedOption, setSelectedOption] = useState<Option>(options[0])
+  const [savedSelection, setSavedSelection] = useState<RangeStatic>()
 
-  const handleOptionClick = (option: Option) => {
+  const openPicker = useCallback(() => {
+    setSavedSelection(selection)
+    setIsOpen((prev) => !prev)
+  }, [selection])
+
+  const handleOptionClick = useCallback(
+    (option: Option) => {
+      setSelectedOption(option)
+      setIsOpen(false)
+      if (savedSelection) {
+        onOptionChange(option, savedSelection)
+      }
+    },
+    [onOptionChange, savedSelection],
+  )
+
+  useEffect(() => {
+    const option = options.find((option) => option.value === formats.size) || options[0]
     setSelectedOption(option)
-    setIsOpen(false)
-  }
+  }, [formats.size])
 
   return (
-    <div className={clsx('ql-picker ql-icon-picker custom-icon-picker', { 'ql-expanded': isOpen })}>
+    <div
+      className={clsx(
+        'ql-picker ql-icon-picker custom-icon-picker',
+        { 'ql-expanded': isOpen },
+        className,
+      )}
+    >
       <span
-        className='ql-picker-label !flex justify-center items-center'
-        onClick={() => setIsOpen(!isOpen)}
+        className={clsx('ql-picker-label !flex justify-center items-center')}
+        onClick={openPicker}
       >
         {selectedOption.icon}
       </span>
@@ -176,7 +272,10 @@ const IconPicker: React.FC<IconPickerProps> = ({ options }) => {
             className={clsx('ql-picker-item !flex justify-center items-center', {
               '!hidden': selectedOption === option,
             })}
-            onClick={() => handleOptionClick(option)}
+            onClick={(e) => {
+              e.preventDefault()
+              handleOptionClick(option)
+            }}
           >
             {option.icon}
           </span>
